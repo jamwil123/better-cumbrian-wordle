@@ -1,7 +1,6 @@
 {
   "name": "wordle-react-clone",
   "version": "0.1.0",
-  "homepage": "/wordle-react-clone",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
