@@ -12,14 +12,14 @@ import {
   boardDefault,
   boardStatusDefault,
   computeGuessStatus,
-  generateAcceptableWordSet,
-  generateMainWordSet,
-  getRandomItemFromSet,
   LetterStatus,
 } from "./helpers"
 import Board from "./components/Board"
 import Keyboard from "./components/Keyboard"
 import GameOver from "./components/GameOver"
+
+// Import the Cumbrian dictionary
+import cumbrianWords from "./cumbrian-dictionary.json"
 
 export interface IWordleGameContext {
   board: string[][]
@@ -53,32 +53,32 @@ function App() {
     attempt: 0,
     letterPos: 0,
   })
-  const [wordSet, setWordSet] = useState(new Set())
+  const [wordSet, setWordSet] = useState(new Set<string>())
   const [letterStatus, setLetterStatus] = useState(new Map())
   const [gameOver, setGameOver] = useState({
     gameOver: false,
     guessedWord: false,
   })
 
-  //const correctWord = "RIGHT";
+  // Use Cumbrian words from the JSON
   const [correctWord, setCorrectWord] = useState("RIGHT")
 
-  // generate set once (by empty deps)
+  // Load Cumbrian words and set them
   useEffect(() => {
-    // this is the word bank of acceptable words
-    generateAcceptableWordSet().then((words) => {
-      setWordSet(words.wordSet)
-    })
-    // to make guesses easier, this is the word bank of "common" words
-    generateMainWordSet().then((wordsy) => {
-      setCorrectWord(getRandomItemFromSet(wordsy.wordSet))
-    })
+    const words = cumbrianWords as string[] // Cast to a string array
+    const acceptableWordSet = new Set(words.map((word) => word.toUpperCase())) // Create a Set for acceptable words
+    setWordSet(acceptableWordSet)
+
+    // Choose a random word for the correct word
+    setCorrectWord(
+      words[Math.floor(Math.random() * words.length)].toUpperCase()
+    )
   }, [])
 
   const onSelectLetter = (key: string) => {
     if (currAttempt.letterPos >= 5) return
     const newBoard = [...board]
-    newBoard[currAttempt.attempt][currAttempt.letterPos] = key
+    newBoard[currAttempt.attempt][currAttempt.letterPos] = key.toUpperCase() // Ensure letter is uppercase
     setBoard(newBoard)
     setCurrAttempt({ ...currAttempt, letterPos: currAttempt.letterPos + 1 })
   }
@@ -94,10 +94,10 @@ function App() {
   const onEnter = () => {
     if (currAttempt.letterPos !== 5) return
 
-    let currWord = board[currAttempt.attempt].join("").toUpperCase()
+    let currWord = board[currAttempt.attempt].join("").toUpperCase() // Ensure input is uppercase
     if (!wordSet.has(currWord)) return alert("Word not found")
 
-    // compute the status of the letters
+    // Compute the status of the letters
     const newBoardStatus = [...boardStatus]
     newBoardStatus[currAttempt.attempt] = computeGuessStatus(
       currWord,
@@ -105,7 +105,7 @@ function App() {
     )
     setBoardStatus(newBoardStatus)
 
-    // defining here because it won't be refreshed after the setCurrAttempt
+    // Defining here because it won't be refreshed after the setCurrAttempt
     const nextAttemptCount = currAttempt.attempt + 1
 
     setCurrAttempt({
@@ -129,7 +129,7 @@ function App() {
   return (
     <div className="App">
       <nav>
-        <h1>Wordle</h1>
+        <h1>Cumbrian Wordle</h1>
       </nav>
       <AppContext.Provider
         value={{
